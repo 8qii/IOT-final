@@ -1,0 +1,126 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOT Dashboard - Lịch Sử Thiết Bị</title>
+    <link rel="stylesheet" href="css\lichSu.css">
+    <link rel="stylesheet" href="css\all.css">
+    <script src="js/lichSu.js"></script>
+    <script src="js\all.js"></script>
+    <script src="https://cdn.socket.io/4.5.2/socket.io.min.js"></script>
+
+</head>
+
+<body>
+    <nav>
+        <div class="navdiv">
+            <h2>IOT Dashboard</h2>
+            <!-- Phần bên phải của navbar -->
+            <div class="navbar-right">
+                <div class="notification">
+                    <img src="img/notificationIcon.png" alt="Thông báo" class="notification-icon"
+                        onclick="toggleNotifications()">
+                    <!-- <span class="badge">99</span> -->
+                    <div id="notificationDropdown" class="notification-dropdown">
+                        <!-- Các thông báo sẽ được thêm vào đây qua JavaScript -->
+                    </div>
+                </div>
+                <div class="user-info" onclick="goToProfile()">
+                    <img src="img/profileIcon.png" alt="Avatar" class="user-avatar">
+                    <span>Hoàng Anh Quân</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="overlay" class="overlay"></div>
+    <!-- Cửa sổ chi tiết thông báo -->
+    <div id="notificationDetail" class="notification-detail">
+        <div class="detail-header">
+            <span class="detail-title">Notification Detail</span>
+            <button id="closeDetail" class="close-btn">X</button>
+        </div>
+        <div class="detail-content">
+            <p class="detail-timestamp"></p>
+            <p class="detail-message"></p>
+        </div>
+    </div>
+    <div class="dashboard">
+        <div class="sidebar">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li><a href="thongKe.html">Sensor Data</a></li>
+                <li class="active"><a href="lichSu.html">Device History</a></li>
+                <li><a href="myProfile.html">Profile</a></li>
+            </ul>
+        </div>
+        
+        <div class="container">
+            <h1>Lịch Sử Bật/Tắt Thiết Bị</h1>
+        
+            <div class="table-controls">
+                <div class="entries-select">
+                    <label for="entriesPerPage">Hiển thị:</label>
+                    <select id="entriesPerPage">
+                        <option value="5">5</option>
+                        <option value="10" selected>10</option>
+                        <option value="25">25</option>
+                    </select>
+                </div>
+
+                <div class="filter-controls">
+                    <label for="filterSelect">Thời gian:</label>
+                    <select id="filterSelect">
+                        <option value="all">Tất cả</option>
+                        <option value="today">Hôm nay</option>
+                        <option value="7days">7 Ngày</option>
+                        <option value="1month">1 Tháng</option>
+                        <option value="3months">3 Tháng</option>
+                        
+                    </select>
+                </div>
+<!-- 
+                <div class="filter-controls"></div>
+                    <label for="deviceFilterSelect">Thiết bị:</label>
+                    <select id="deviceFilterSelect">
+                        <option value="all">Tất cả</option>
+                        <option value="fan">Quạt</option>
+                        <option value="ac">Điều hòa</option>
+                        <option value="light">Đèn</option>
+                    </select>
+                </div> -->
+
+                
+        
+                <div class="search-bar">
+                    <input type="text" id="searchInput" placeholder="Tìm kiếm..." />
+                </div>
+            </div>
+        
+            <table id="dataTable">
+                <thead>
+                    <tr>
+                        <th data-sort="id" class="sortable">ID <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                        <th data-sort="device_name" class="sortable">Tên Thiết Bị <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                        <th data-sort="status" class="sortable">Trạng Thái <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                        <th data-sort="time" class="sortable">Thời Gian <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+                </tbody>
+            </table>
+        
+            <div id="pagination">
+                <!-- Các nút phân trang sẽ được thêm vào đây -->
+            </div>
+        </div>
+
+
+    </div>
+
+</body>
+
+</html>

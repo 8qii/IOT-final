@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOT Dashboard</title>
+    <link rel="stylesheet" href="css\thongKe.css">
+    <link rel="stylesheet" href="css\all.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="js/thongKe.js"></script>
+    <script src="js/all.js"></script>
+    <script src="https://cdn.socket.io/4.5.2/socket.io.min.js"></script>
+
+</head>
+
+<body>
+    <nav>
+        <div class="navdiv">
+            <h2>IOT Dashboard</h2>
+            <!-- Phần bên phải của navbar -->
+            <div class="navbar-right">
+                <div class="notification">
+                    <img src="img/notificationIcon.png" alt="Thông báo" class="notification-icon"
+                        onclick="toggleNotifications()">
+                    <!-- <span class="badge">99</span> -->
+                    <div id="notificationDropdown" class="notification-dropdown">
+                        <!-- Các thông báo sẽ được thêm vào đây qua JavaScript -->
+                    </div>
+                </div>
+                <div class="user-info" onclick="goToProfile()">
+                    <img src="img/profileIcon.png" alt="Avatar" class="user-avatar">
+                    <span>Hoàng Anh Quân</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <div id="overlay" class="overlay"></div>
+    <!-- Cửa sổ chi tiết thông báo -->
+    <div id="notificationDetail" class="notification-detail">
+        <div class="detail-header">
+            <span class="detail-title">Notification Detail</span>
+            <button id="closeDetail" class="close-btn">X</button>
+        </div>
+        <div class="detail-content">
+            <p class="detail-timestamp"></p>
+            <p class="detail-message"></p>
+        </div>
+    </div>
+    <div class="dashboard">
+        <div class="sidebar">
+            <ul>
+                <li><a href="index.html">Home</a></li>
+                <li class="active"><a href="thongKe.html">Sensor Data</a></li>
+                <li><a href="lichSu.html">Device History</a></li>
+                <li><a href="myProfile.html">Profile</a></li>
+            </ul>
+        </div>
+        
+        <div class="overC">
+            <h1>Dữ liệu Thống Kê Môi Trường</h1>
+            <div class="container">
+                <h3 class="m-0 font-weight-bold text-primary" style="padding-top: 20px; padding-left: 5px;"> Sensor Data Table</h6>
+                <div class="table-controls">
+                    <div class="entries-select">
+                        <label for="entriesSelect">Hiển thị:</label>
+                        <select id="entriesSelect">
+                            <option value="5">5</option>
+                            <option value="10" selected>10</option>
+                            <option value="25">25</option>
+                        </select>
+                    </div>
+    
+                    <div class="filter-controls">
+                        <label for="filterSelect">Thời gian:</label>
+                        <select id="filterSelect">
+                            <option value="all">Tất cả</option>
+                            <option value="today">Hôm nay</option>
+                            <option value="7days">7 Ngày</option>
+                            <option value="1month">1 Tháng</option>
+                            <option value="3months">3 Tháng</option>
+                    
+                        </select>
+                    </div>
+    
+            
+                    <div class="search-bar">
+                        <input type="text" id="searchInput" placeholder="Tìm kiếm..." />
+                        <div class="filter-controls">
+                            <label for="sensorFilterSelect">Cảm biến:</label>
+                            <select id="sensorFilterSelect">
+                                <option value="all">Tất cả</option>
+                                <option value="temperature">Nhiệt độ</option>
+                                <option value="humidity">Độ ẩm</option>
+                                <option value="light">Ánh sáng</option>
+                                <option value="dust">Độ bụi</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            
+                <table id="dataTable">
+                    <thead>
+                        <tr>
+                            <th data-sort="id" class="sortable">ID <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                            <th data-sort="temperature" class="sortable">Temperature <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                            <th data-sort="humidity" class="sortable">Humidity <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                            <th data-sort="light" class="sortable">Light <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                            <th data-sort="dust" class="sortable">Dust <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                            <th data-sort="time" class="sortable">Time <span class="sort-arrow asc">▲</span><span class="sort-arrow desc">▼</span></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <!-- Dữ liệu sẽ được thêm vào đây bằng JavaScript -->
+                    </tbody>
+                </table>
+            
+                <div id="pagination" style="padding-bottom: 20px;">
+                    <!-- Các nút phân trang sẽ được thêm vào đây -->
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+
+</html>

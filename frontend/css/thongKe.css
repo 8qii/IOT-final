@@ -1,0 +1,279 @@
+
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f4;
+    margin: 0;
+    padding: 0;
+}
+
+.container {
+    width: 95%;
+    margin: 30px auto;
+    background-color: #fff;
+    padding-left: 20px;
+    padding-right: 20px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    border-radius: 10px ;
+}
+
+h1 {
+    text-align: center;
+    color: #5a5c69;
+    font-weight: 400;
+    line-height: 1.2;
+    display: block;
+    font-size: 2em;
+    margin-block-start: 0.67em;
+    margin-block-end: 0.67em;
+    margin-inline-start: 0px;
+    margin-inline-end: 0px;
+    unicode-bidi: isolate;
+
+}
+h3{
+    font-weight: 600;
+    line-height: 1.2;
+    color: #4e73df ;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+thead {
+    background-color: #4e4e4e;
+    color: white;
+}
+
+thead th {
+    padding: 10px;
+    text-align: left;
+}
+
+tbody tr:nth-child(even) {
+    background-color: #f2f2f2;
+}
+
+tbody tr:hover {
+    background-color: #ddd;
+}
+
+tbody td {
+    padding: 10px;
+    text-align: left;
+}
+
+
+
+#pagination {
+    margin-top: 30px;
+    display: flex;
+    justify-content: center;
+    /* Căn giữa các nút phân trang */
+    gap: 5px;
+}
+
+#pagination button {
+    padding: 5px 10px;
+    border: none;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    color: black;
+    font-size: 16px;
+}
+
+#pagination span {
+    padding: 5px 10px;
+    border: none;
+    background-color: #f0f0f0;
+    font-size: 16px;
+    border-radius: 5px;
+}
+
+#pagination button.active {
+    background-color: #007bff;
+    /* Màu nền cho nút hiện tại */
+    color: white;
+    /* Màu chữ cho nút hiện tại */
+}
+
+#pagination button:hover {
+    background-color: #ddd;
+}
+
+#pagination button:disabled {
+    background-color: #e0e0e0;
+    cursor: not-allowed;
+}
+
+
+.table-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    padding: 10px;
+    background-color: #f9f9f9;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.entries-select {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+}
+
+.entries-select label {
+    margin-right: 10px;
+}
+
+.entries-select select {
+    margin-right: 10px;
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    transition: border-color 0.3s ease;
+}
+
+.entries-select select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.search-bar input {
+    padding: 8px 15px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 20px;
+    width: 200px;
+    transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.search-bar input:focus {
+    border-color: #007bff;
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.25);
+}
+
+button {
+    cursor: pointer;
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 14px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: #0056b3;
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 8px rgba(0, 123, 255, 0.5);
+}
+
+
+/* Đặt màu nền tối cho table và cột */
+th.sortable {
+    cursor: pointer;
+    position: relative;
+    color: #fff;
+    /* Màu chữ sáng để hiển thị tốt trên nền tối */
+}
+
+th.sortable .sort-arrow {
+    font-size: 12px;
+    margin-left: 5px;
+    color: #ccc;
+    /* Màu mũi tên mặc định (sáng) */
+    visibility: hidden;
+    /* Ẩn mũi tên mặc định */
+}
+
+/* Mũi tên sắp xếp tăng */
+th.sortable.asc .sort-arrow.asc {
+    visibility: visible;
+    color: #fff;
+    /* Màu mũi tên sáng khi được chọn */
+}
+
+/* Mũi tên sắp xếp giảm */
+th.sortable.desc .sort-arrow.desc {
+    visibility: visible;
+    color: #fff;
+    /* Màu mũi tên sáng khi được chọn */
+}
+
+/* Khi di chuột vào tiêu đề, hiển thị mũi tên */
+th.sortable:hover .sort-arrow {
+    visibility: visible;
+}
+
+/* Ẩn mũi tên khi sắp xếp theo chiều thuận hoặc nghịch */
+th.sortable.asc .sort-arrow.desc,
+th.sortable.desc .sort-arrow.asc {
+    visibility: hidden;
+}
+
+
+.filter-controls {
+    display: flex;
+    align-items: center;
+    font-size: 16px;
+    color: #333;
+}
+
+.filter-controls label {
+    margin-right: 10px;
+}
+
+.filter-controls select {
+    padding: 5px 10px;
+    font-size: 14px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #333;
+    transition: border-color 0.3s ease;
+    margin-right: 20px;
+    /* Thêm khoảng cách giữa bộ lọc và ô tìm kiếm */
+}
+
+.filter-controls select:focus {
+    border-color: #007bff;
+    outline: none;
+}
+
+.search-bar {
+    display: flex;
+    align-items: center;
+    /* Căn giữa các phần tử theo chiều dọc */
+}
+
+.search-bar input {
+    margin-right: 10px;
+    /* Khoảng cách giữa ô tìm kiếm và dropdown */
+}
+
+.search-bar select {
+    padding: 5px;
+    /* Khoảng cách bên trong cho dropdown */
+}
+
+.overC {
+    width: 85%;
+    margin:  auto;
+    background-color: #f4f4f4;
+    padding: 20px;
+}

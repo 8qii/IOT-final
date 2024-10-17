@@ -1,0 +1,178 @@
+.student-info-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    padding: 20px 20px;
+    margin-top: 20px;
+}
+
+.dashboard{
+    background-color: #f4f4f4;
+}
+
+.student-info-container .card {
+    background-color: white;
+    border: none;
+    border-radius: 10px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+
+.student-info-container .card-body.text-center {
+    text-align: center;
+}
+
+.student-info-container img.rounded-circle {
+    border-radius: 50%;
+    margin-bottom: 15px;
+}
+
+.student-info-container .my-3 {
+    margin-top: 1rem !important;
+    margin-bottom: 1rem !important;
+}
+
+.student-info-container .text-muted {
+    color: #6c757d !important;
+}
+
+.student-info-container .d-flex {
+    display: flex !important;
+}
+
+.student-info-container .justify-content-center {
+    justify-content: center !important;
+}
+
+.student-info-container .list-group-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px 20px;
+    border: none;
+    border-bottom: 1px solid #f1f1f1;
+}
+
+.student-info-container .list-group-item:last-child {
+    border-bottom: none;
+}
+
+.student-info-container .list-group-item p {
+    margin: 0;
+}
+
+.student-info-container .fa-lg {
+    font-size: 1.5rem;
+}
+
+/* Responsive styling */
+@media (max-width: 992px) {
+    .student-info-container {
+        flex-direction: column;
+    }
+
+    .student-info-container .col-lg-4,
+    .student-info-container .col-lg-8 {
+        max-width: 100%;
+        flex: 1 1 100%;
+    }
+}
+
+
+.student-info-container {
+    flex-grow: 1;
+    display: flex;
+    /* Chia thành 2 cột */
+    gap: 20px;
+    /* Khoảng cách giữa các cột */
+    margin: 20px;
+}
+
+.left-column {
+    flex-basis: 300px;
+    /* Cố định độ rộng cột bên trái */
+    flex-grow: 0;
+    /* Không cho phép cột bên trái mở rộng */
+    display: flex;
+    /* Sử dụng flexbox để xếp cột con */
+    flex-direction: column;
+    /* Xếp cột con theo chiều dọc */
+    gap: 20px;
+    /* Khoảng cách giữa các cột con */
+}
+
+.right-column {
+    flex-grow: 1;
+    /* Để cột phải chiếm hết phần còn lại */
+    display: flex;
+    /* Sử dụng flexbox để xếp cột con */
+    flex-direction: column;
+    /* Xếp cột con theo chiều dọc */
+    gap: 20px;
+    /* Khoảng cách giữa các cột con */
+}
+
+/* Căn chỉnh lại card để nó đẹp mắt hơn */
+.card {
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 20px;
+}
+
+.card-body .row {
+    display: flex;
+    /* Sử dụng Flexbox để căn chỉnh hàng */
+    align-items: center;
+    /* Căn giữa theo chiều dọc */
+    margin-bottom: 15px;
+    /* Thêm khoảng cách giữa các hàng */
+}
+
+.card-body .col-sm-3 {
+    flex-basis: 30%;
+    /* Đặt chiều rộng cố định cho tiêu đề */
+    max-width: 30%;
+}
+
+.card-body .col-sm-9 {
+    flex-basis: 70%;
+    /* Đặt chiều rộng cố định cho nội dung */
+    max-width: 70%;
+}
+
+.card-body p {
+    margin: 0;
+    /* Loại bỏ khoảng cách giữa các đoạn văn */
+}
+
+.list-group-item {
+    display: flex;
+    /* Đảm bảo sử dụng flexbox để sắp xếp các phần tử */
+    align-items: center;
+    /* Căn giữa các phần tử theo chiều dọc */
+}
+
+.fab {
+    margin-right: 40px;
+    /* Tạo khoảng cách giữa biểu tượng và nội dung */
+}
+
+.content-text {
+    margin: 0;
+    /* Xóa khoảng cách mặc định của phần tử <p> */
+}
+
+.card-body a{
+    color: grey;
+        /* Màu đen cho văn bản liên kết */
+        text-decoration: none;
+        /* Xóa dấu gạch chân */
+}
+.card-body a:hover {
+    color: black;
+    /* Giữ nguyên màu đen khi hover */
+    text-decoration: none;
+    /* Không có gạch chân khi hover */
+}
+

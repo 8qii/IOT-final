@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IOT Dashboard</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/all.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <script src="js/chart.js"></script>
+    <script src="js/index.js" defer></script>
+    <script src="js/all.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <nav>
+        <div class="navdiv">
+            <h2>IOT Dashboard</h2>
+            <!-- Phần bên phải của navbar -->
+            <div class="navbar-right">
+                <div class="notification">
+                    <img src="img/notificationIcon.png" alt="Thông báo" class="notification-icon"
+                        onclick="toggleNotifications()">
+                    <div id="notificationDropdown" class="notification-dropdown">
+                        <!-- Các thông báo sẽ được thêm vào đây qua JavaScript -->
+                    </div>
+                </div>
+                <div class="user-info" onclick="goToProfile()">
+                    <img src="img/profileIcon.png" alt="Avatar" class="user-avatar">
+                    <span>Hoàng Anh Quân</span>
+                </div>
+            </div>
+        </div>
+    </nav>
+    <div id="overlay" class="overlay"></div>
+
+    <!-- Cửa sổ chi tiết thông báo -->
+    <div id="notificationDetail" class="notification-detail">
+        <div class="detail-header">
+            <span class="detail-title">Notification Detail</span>
+            <button id="closeDetail" class="close-btn">X</button>
+        </div>
+        <div class="detail-content">
+            <p class="detail-timestamp"></p>
+            <p class="detail-message"></p>
+        </div>
+    </div>
+
+    <div class="dashboard">
+        <div class="sidebar">
+            <ul>
+                <li class="active"><a href="index.html">Home</a></li>
+                <li><a href="thongKe.html">Sensor Data</a></li>
+                <li><a href="lichSu.html">Device History</a></li>
+                <li><a href="myProfile.html">Profile</a></li>
+            </ul>
+        </div>
+
+        <!-- Phần nội dung chính -->
+        <div class="content">
+            <div class="time-display" id="currentTime"></div>
+            <div class="cards">
+                <div class="card" id="temperatureCard">
+                    <h3>Nhiệt độ</h3>
+                    <p id="temperature">--°C</p>
+                </div>
+                <div class="card" id="humidityCard">
+                    <h3>Độ ẩm</h3>
+                    <p id="humidity">--%</p>
+                </div>
+                <div class="card" id="lightCard">
+                    <h3>Độ sáng</h3>
+                    <p id="light">--lux</p>
+                </div>
+                <div class="card" id="gasCard">
+                    <h3>Độ bụi</h3>
+                    <p id="dust">--pm</p>
+                </div>
+            </div>
+            <!-- <div class="side_notification" id="notification">
+                <div class="notification__body">
+                    <img src="img/bell.svg" alt="Notification Icon" class="notification__icon">
+                    <span id="notificationMessage"></span>
+                    <img src="img/rocket.svg" alt="Toggle Device" class="toggle-icon" id="toggleIcon"
+                        style="cursor: pointer; margin-left: 10px;">
+                </div>
+                <div class="notification__progress"></div>
+            </div> -->
+
+
+            <!-- New sections -->
+            <div class="bottom-content">
+                <div class="bottom-section left-bg">
+                    <div class="top_left">
+                        <h2>Thống kê thời gian thực</h2>
+                        <!-- Nút bấm Xem chi tiết -->
+                        <button id="detailButton">Xem chi tiết</button>
+                    </div>
+                    <canvas id="myChart"></canvas>
+                </div>
+
+                <!-- Cửa sổ chi tiết, mặc định ẩn -->
+                <!-- <div id="detailChartModal" class="detail-chart-modal" style="display: none;">
+                    <div class="DetailChart">
+                        <div>
+                            <h2>Thống kê thời gian thực</h2>
+                        </div>
+                        <div class="tempChartBox">
+                            <canvas id="lineChart" width="400" height="100"></canvas>
+                        </div>
+                        <div class="dryChartBox">
+                            <canvas id="humidityChart" width="400" height="100"></canvas>
+                        </div>
+                        <div class="lightChartBox">
+                            <canvas id="lightChart" width="400" height="100"></canvas>
+                        </div>
+                        
+                        <div class="closeButtonContainer">
+                            <button id="closeButton">Đóng</button>
+                        </div>
+                    </div>
+                </div> -->
+
+                <!-- Cửa sổ chi tiết, mặc định ẩn -->
+                <div id="detailChartModal" class="detail-chart-modal" style="display: none;">
+                    <div class="DetailChart">
+                        <div>
+                            <h2>Thống kê thời gian thực</h2>
+                        </div>
+                        <div class="tempChartBox">
+                            <canvas id="lineChart" width="400" height="100"></canvas>
+                        </div>
+                        
+                        <!-- Nút đóng cửa sổ -->
+                        <div class="closeButtonContainer">
+                            <button id="closeButton">Đóng</button>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bottom-section right-bg">
+                    <div>
+                        <h2>Điều khiển thiết bị thông minh</h2>
+                    </div>
+                    <div class="deviceControl">
+                        <div class="device">
+                            <img src="img/lightOff.png" alt="light" class="device-icon" id="light-icon">
+                            <span>Đèn</span>
+                            <label class="switch">
+                                <input type="checkbox" data-device="light" id="light-switch">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <hr class="divider">
+                        <div class="device">
+                            <img src="img/fanOff.png" alt="fan" class="device-icon" id="fan-icon">
+                            <span>Quạt</span>
+                            <label class="switch">
+                                <input type="checkbox" data-device="fan" id="fan-switch">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <hr class="divider">
+                        <div class="device">
+                            <img src="img/condOff.png" alt="ac" class="device-icon" id="ac-icon">
+                            <span>Điều hòa</span>
+                            <label class="switch">
+                                <input type="checkbox" data-device="ac" id="ac-switch">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <hr class="divider">
+                        <div class="device">
+                            <img src="img/alertOff.png" alt="alert" class="device-icon" id="alert-icon">
+                            <span>Alert</span>
+                            <label class="switch ll">
+                                <input type="checkbox" data-device="alert" id="alert-switch">
+                                <span class="slider round"></span>
+                            </label>
+                        </div>
+                        <!-- Thêm dòng này để hiển thị số lần bật tắt Alert -->
+                        <p id="alert-count">Số lần bật Alert: </p>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
