@@ -33,9 +33,8 @@ function controlDevice(device, status) {
                     updateDeviceIcon(switchElement, iconElement, 'img/fanOn.gif', 'img/fanOff.png');
                 } else if (device === 'ac') {
                     updateDeviceIcon(switchElement, iconElement, 'img/condOn.gif', 'img/condOff.png');
-                }
-                else if (device === 'alert') {
-                    updateDeviceIcon(switchElement, iconElement, 'img/AlertOn.gif', 'img/alertOff.png');
+                } else if (device === 'alert') {
+                    updateDeviceIcon(switchElement, iconElement, 'img/alertOn.gif', 'img/alertOff.png');
                 }
 
 
@@ -230,7 +229,6 @@ function updateDeviceIcon(switchElement, iconElement, imgOn, imgOff) {
     }
 }
 
-// Hàm đồng bộ trạng thái thiết bị
 function syncDeviceStatus() {
     fetch('http://127.0.0.1:5000/api/device-status')
         .then(response => response.json())
@@ -240,25 +238,30 @@ function syncDeviceStatus() {
             switches.forEach(switchElement => {
                 const deviceName = switchElement.getAttribute('data-device');
                 if (deviceName && data[deviceName]) {
-                    switchElement.checked = data[deviceName] === 'on';
+                    const isDeviceOn = data[deviceName] === 'on';
+                    // Kiểm tra xem trạng thái hiện tại của công tắc có khớp với trạng thái đồng bộ hay không
+                    if (switchElement.checked !== isDeviceOn) {
+                        // Cập nhật trạng thái của công tắc nếu cần thiết
+                        switchElement.checked = isDeviceOn;
 
-                    // Cập nhật hình ảnh tương ứng với trạng thái
-                    const iconElement = document.getElementById(`${deviceName}-icon`);
-                    if (deviceName === 'light') {
-                        updateDeviceIcon(switchElement, iconElement, 'img/lightOn.gif', 'img/lightOff.png');
-                    } else if (deviceName === 'fan') {
-                        updateDeviceIcon(switchElement, iconElement, 'img/fanOn.gif', 'img/fanOff.png');
-                    } else if (deviceName === 'ac') {
-                        updateDeviceIcon(switchElement, iconElement, 'img/condOn.gif', 'img/condOff.png');
-                    }
-                    else if (deviceName === 'alert') {
-                        updateDeviceIcon(switchElement, iconElement, 'img/AlertOn.gif', 'img/alertOff.png');
+                        // Cập nhật hình ảnh tương ứng với trạng thái
+                        const iconElement = document.getElementById(`${deviceName}-icon`);
+                        if (deviceName === 'light') {
+                            updateDeviceIcon(switchElement, iconElement, 'img/lightOn.gif', 'img/lightOff.png');
+                        } else if (deviceName === 'fan') {
+                            updateDeviceIcon(switchElement, iconElement, 'img/fanOn.gif', 'img/fanOff.png');
+                        } else if (deviceName === 'ac') {
+                            updateDeviceIcon(switchElement, iconElement, 'img/condOn.gif', 'img/condOff.png');
+                        } else if (deviceName === 'alert') {
+                            updateDeviceIcon(switchElement, iconElement, 'img/alertOn.gif', 'img/alertOff.png');
+                        }
                     }
                 }
             });
         })
         .catch(error => console.error('Error fetching device status:', error));
 }
+
 
 //Gọi hàm đồng bộ trạng thái khi trang được tải
 document.addEventListener('DOMContentLoaded', syncDeviceStatus);
@@ -572,7 +575,7 @@ function updateCardColors() {
     updateCardColor('temperature', temperature, [15, 25, 40], 'temperature');
     updateCardColor('humidity', humidity, [30, 70, 80], 'humidity');
     updateCardColor('light', light, [1000, 3000, 5000], 'light');
-    updateCardColor('dust', dust, [5, 20, 40], 'dust');
+    updateCardColor('dust', dust, [0, 20, 40], 'dust');
 }
 
 function updateCardColor(id, value, thresholds, type) {
@@ -593,13 +596,10 @@ function updateCardColor(id, value, thresholds, type) {
 setInterval(() => {
     // Hàm này nên được gọi sau khi cập nhật giá trị nhiệt độ, độ ẩm, và độ sáng
     updateCardColors();
-}, 1);
+}, 2);
 
 
-// setInterval(() => {
-//     // Hàm này nên được gọi sau khi cập nhật giá trị nhiệt độ, độ ẩm, và độ sáng
-//     syncDeviceStatus();
-// }, 100);                       
+         
 
 document.addEventListener("DOMContentLoaded", function () {
     fetchSensorData();
@@ -634,7 +634,7 @@ document.getElementById('detailChartModal').addEventListener('click', function (
 });
 });
 
-// Tự động cập nhật dữ liệu cảm biến mỗi 60 giây
+// Tự động cập nhật dữ liệu cảm biến mỗi 5 giây
 setInterval(fetchSensorData, 5000);
 
 document.addEventListener("DOMContentLoaded", function () {
@@ -681,109 +681,6 @@ function startAutoUpdate() {
 window.onload = startAutoUpdate;
 
 
-
-
-
-// // Hàm khởi tạo biểu đồ chi tiết khi cửa sổ chi tiết mở
-// function initializeDetailedCharts() {
-//     fetch("http://127.0.0.1:5000/api/chart_data")
-//         .then(response => response.json())
-//         .then(data => {
-//             const temperatures = data.map(item => item[0] !== null ? item[0] : 0);
-//             const humidities = data.map(item => item[1] !== null ? item[1] : 0);
-//             const lights = data.map(item => item[2] !== null ? item[2] : 0);
-//             // Sử dụng mảng gasValues cho gas
-//             const gas = gasValues.length > 0 ? gasValues : Array(20).fill(10); // Đảm bảo có đủ 20 giá trị gas
-
-//             // Cấu hình nhãn trục x
-//             const xAxisLabels = Array.from({ length: data.length }, (_, i) => {
-//                 if (i === 4) return '15';
-//                 if (i === 9) return '10';
-//                 if (i === 14) return '5';
-//                 if (i === 19) return 'Hiện tại';
-//                 return '';
-//             });
-
-//              // Hủy biểu đồ nếu nó đã được tạo
-//             if (myChart) {
-//                 myChart.destroy();
-//             }
-
-//             // Biểu đồ nhiệt độ chi tiết
-//             const tempCtx = document.getElementById('lineChart').getContext('2d');
-//             myChart = new Chart(tempCtx, {
-//                 type: 'line',
-//                 data: {
-//                     labels: xAxisLabels,
-//                     datasets: [{
-//                         label: 'Độ bụi (pm)', // Biểu đồ cho gas
-//                             data: gas, // Dữ liệu gas lấy từ mảng gasValues
-//                             borderColor: 'rgba(75, 192, 192, 1)',
-//                             backgroundColor: 'rgba(75, 192, 192, 0.2)',
-//                     }]
-//                 },
-//                 options: {
-//                     scales: {
-//                         x: {
-//                             ticks: {
-//                                 autoSkip: false, // Không tự động bỏ qua nhãn
-//                                 maxRotation: 0,
-//                                 minRotation: 0,
-//                                 callback: function (value, index, values) {
-//                                     // Hiển thị nhãn theo giá trị của chỉ số
-//                                     return xAxisLabels[index];
-//                                 }
-//                             },
-//                             grid: {
-//                                 display: true,
-//                                 drawOnChartArea: true
-//                             },
-//                             title: {
-//                                 display: true,
-//                                 text: 'Phút'
-//                             },
-//                         },
-//                         y: {
-//                             beginAtZero: true,
-//                             ticks: {
-//                                 stepSize: 5,
-//                                 maxTicksLimit: 20,
-//                             }
-//                         }
-//                     }
-//                 }
-//             });
-//         })
-//         .catch(error => console.error('Error fetching data:', error));
-// }
-
-
-// // Hàm để bật/ tắt thiết bị (chuyển trạng thái công tắc)
-// function toggleDevice(device) {
-//     switch (device) {
-//         case 'air_conditioner':
-//             // Chuyển đổi trạng thái công tắc điều hòa
-//             const acSwitch = document.getElementById('ac-switch');
-//             acSwitch.checked = true; // Bật công tắc điều hòa
-//             controlDevice("ac", "on");
-//             break;
-//         case 'fan':
-//             // Chuyển đổi trạng thái công tắc quạt
-//             const fanSwitch = document.getElementById('fan-switch');
-//             fanSwitch.checked = true; // Bật công tắc quạt
-//             controlDevice("fan", "on");
-//             break;
-//         case 'light':
-//             // Chuyển đổi trạng thái công tắc đèn
-//             const lightSwitch = document.getElementById('light-switch');
-//             lightSwitch.checked = true; // Bật công tắc đèn
-//             controlDevice("light", "on");
-//             break;
-//         default:
-//             console.log("Không xác định thiết bị");
-//     }
-// }
-
 // Hàm cập nhật giá trị bụi và kiểm tra điều kiện bật Alert
 function updateDustValue(dustValue) {
     // Cập nhật giá trị bụi trên giao diện
@@ -805,7 +702,7 @@ function updateDustValue(dustValue) {
 function alertDevice(isOn) {
     if (isOn) {
         console.log("Thiết bị Alert đã được bật");
-        document.getElementById("alert-icon").src = "img/alertOn.png";  // Đổi icon sang trạng thái bật
+        document.getElementById("alert-icon").src = "img/alertOn.gif";  // Đổi icon sang trạng thái bật
     } else {
         console.log("Thiết bị Alert đã được tắt");
         document.getElementById("alert-icon").src = "img/alertOff.png";  // Đổi icon sang trạng thái tắt
@@ -832,4 +729,9 @@ function fetchAlertCount() {
         });
 }
 
-setInterval(fetchAlertCount, 4000);
+setInterval(fetchAlertCount, 2000);
+
+setInterval(() => {
+    // Hàm này nên được gọi sau khi cập nhật giá trị nhiệt độ, độ ẩm, và độ sáng
+    syncDeviceStatus();
+}, 1000);              

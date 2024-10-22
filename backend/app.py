@@ -96,7 +96,6 @@ def get_device_status():
     conn.close()
     return jsonify(status_map)
 
-
 #-------------------------get on off -------------------------------------------------
 # API lấy số lần bật/tắt của mỗi thiết bị trong 24 giờ qua
 @app.route('/api/device-toggle-count', methods=['GET'])
@@ -171,51 +170,50 @@ def add_notification_route():
 
 # ------------------------------------Thong Ke-------------------------------------------
 
+# @app.route('/api/sensors/all', methods=['GET'])
+# def get_all_sensors_data():
+#     conn = sqlite3.connect(r'G:/Coding/database/iot.db')
+#     cursor = conn.cursor()
 
-@app.route('/api/sensors/all', methods=['GET'])
-def get_all_sensors_data():
-    conn = sqlite3.connect(r'G:/Coding/database/iot.db')
-    cursor = conn.cursor()
+#     cursor.execute(
+#         "SELECT id, temperature, humidity, light, time FROM sensors ORDER BY id ASC")
+#     rows = cursor.fetchall()
 
-    cursor.execute(
-        "SELECT id, temperature, humidity, light, time FROM sensors ORDER BY id ASC")
-    rows = cursor.fetchall()
+#     data = []
+#     for row in rows:
+#         data.append({
+#             'id': row[0],
+#             'nhiet_do': row[1],
+#             'do_am': row[2],
+#             'do_sang': row[3],
+#             'time': row[4]  # Đảm bảo rằng thời gian được trả về đúng định dạng
+#         })
 
-    data = []
-    for row in rows:
-        data.append({
-            'id': row[0],
-            'nhiet_do': row[1],
-            'do_am': row[2],
-            'do_sang': row[3],
-            'time': row[4]  # Đảm bảo rằng thời gian được trả về đúng định dạng
-        })
-
-    conn.close()
-    return jsonify(data)
+#     conn.close()
+#     return jsonify(data)
 
 
 # ----------------------------------------Lich Su-----------------------------------------
-@app.route('/api/devices', methods=['GET'])
-def get_devices_data():
-    conn = sqlite3.connect('G:/Coding/database/iot.db')
-    cursor = conn.cursor()
+# @app.route('/api/devices', methods=['GET'])
+# def get_devices_data():
+#     conn = sqlite3.connect('G:/Coding/database/iot.db')
+#     cursor = conn.cursor()
 
-    cursor.execute(
-        "SELECT id, device_name, status, time FROM devices ORDER BY id DESC")
-    rows = cursor.fetchall()
+#     cursor.execute(
+#         "SELECT id, device_name, status, time FROM devices ORDER BY id DESC")
+#     rows = cursor.fetchall()
 
-    data = []
-    for row in rows:
-        data.append({
-            'id': row[0],
-            'device_name': row[1],
-            'status': row[2],
-            'time': row[3]
-        })
+#     data = []
+#     for row in rows:
+#         data.append({
+#             'id': row[0],
+#             'device_name': row[1],
+#             'status': row[2],
+#             'time': row[3]
+#         })
 
-    conn.close()
-    return jsonify(data)
+#     conn.close()
+#     return jsonify(data)
 
 
 
@@ -419,31 +417,32 @@ def on_message(client, userdata, message):
             light = payload.get('light')
             dust = payload.get('dust')
 
-            # Chỉ thực hiện nếu có ít nhất một giá trị không phải là None
-            if temperature is not None or humidity is not None or light is not None:
-                conn = sqlite3.connect('G:/Coding/database/iot.db')
-                cursor = conn.cursor()
+            # # Chỉ thực hiện nếu có ít nhất một giá trị không phải là None
+            # if temperature is not None or humidity is not None or light is not None:
+            conn = sqlite3.connect('G:/Coding/database/iot.db')
+            cursor = conn.cursor()
 
-                # Chèn dữ liệu vào một hàng với cả ba giá trị
-                cursor.execute("""
-                    INSERT INTO sensors (temperature, humidity, light, dust) 
-                    VALUES (?, ?, ?, ?)
-                """, (temperature, humidity, light, dust))
+            # Chèn dữ liệu vào một hàng với cả ba giá trị
+            cursor.execute("""
+                INSERT INTO sensors (temperature, humidity, light, dust) 
+                VALUES (?, ?, ?, ?)
+            """, (temperature, humidity, light, dust))
 
-                conn.commit()
-                print("Dữ liệu cảm biến đã được lưu vào cơ sở dữ liệu.")
+            conn.commit()
+            print("Dữ liệu cảm biến đã được lưu vào cơ sở dữ liệu.")
 
-                # # Xóa dòng mới nhất
-                # cursor.execute("""
-                #     DELETE FROM sensors 
-                #     WHERE rowid = (SELECT MAX(rowid) FROM sensors)
-                # """)
-                conn.commit()
+            # # Xóa dòng mới nhất
+            # cursor.execute("""
+            #     DELETE FROM sensors 
+            #     WHERE rowid = (SELECT MAX(rowid) FROM sensors)
+            # """)
+            conn.commit()
 
-                conn.close()
+            conn.close()
 
 
         elif message.topic == mqtt_topic_status:
+            print("called")
             payload = json.loads(message.payload.decode())
             device = payload.get('device')
             status = payload.get('status')
@@ -451,15 +450,12 @@ def on_message(client, userdata, message):
             conn = sqlite3.connect('G:/Coding/database/iot.db')
             cursor = conn.cursor()
 
-            if device is not None and status is not None:
-                cursor.execute(
-                    "INSERT INTO devices (device_name, status) VALUES (?, ?)", (device, status))
+            cursor.execute("INSERT INTO devices (device_name, status) VALUES (?, ?)", (device, status))
 
             conn.commit()
             conn.close()
 
-            print(f"Trạng thái thiết bị {
-                  device} đã được cập nhật thành {status}")
+            print(f"Trạng thái thiết bị {device} đã được cập nhật thành {status}")
 
     except Exception as e:
         print(f"Error while processing message: {e}")
@@ -473,15 +469,32 @@ mqtt_client.on_message = on_message
 mqtt_client.username_pw_set(mqtt_user, mqtt_password)
 
 
+# def on_connect(client, userdata, flags, rc):
+#     if rc == 0:
+#         print("Kết nối thành công đến MQTT broker")
+#         client.subscribe(mqtt_topic)
+#         client.subscribe(mqtt_topic_status)
+#     else:
+#         print(f"Kết nối thất bại với mã lỗi: {rc}")
+
+
+# mqtt_client.on_connect = on_connect
+subscribed_topics = set()  # Biến để lưu trữ các chủ đề đã đăng ký
+
 def on_connect(client, userdata, flags, rc):
     if rc == 0:
         print("Kết nối thành công đến MQTT broker")
-        client.subscribe(mqtt_topic)
-        client.subscribe(mqtt_topic_status)
+
+        # Đăng ký chủ đề nếu chưa được đăng ký
+        if mqtt_topic not in subscribed_topics:
+            client.subscribe(mqtt_topic)
+            subscribed_topics.add(mqtt_topic)
+
+        if mqtt_topic_status not in subscribed_topics:
+            client.subscribe(mqtt_topic_status)
+            subscribed_topics.add(mqtt_topic_status)
     else:
         print(f"Kết nối thất bại với mã lỗi: {rc}")
-
-
 mqtt_client.on_connect = on_connect
 
 # ---------------------- Flask API cho điều khiển thiết bị ----------------------

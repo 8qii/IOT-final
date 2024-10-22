@@ -25,6 +25,8 @@ document.addEventListener('DOMContentLoaded', function () {
                 return 'Điều hòa';
             case 'fan':
                 return 'Quạt';
+            case 'alert':
+                return 'Cảnh báo';
             default:
                 return deviceName;
         }
