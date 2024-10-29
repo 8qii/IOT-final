@@ -12,24 +12,20 @@ DHT dht(dhtpin, dhttype);
 #define FAN_PIN 4     // LED đại diện cho quạt
 #define AC_PIN 5      // LED đại diện cho điều hòa
 #define LIGHT_PIN 2   // LED đại diện cho đèn
+#define ALERT_PIN 13
 
 // Thông tin mạng WiFi
 const char* ssid = "TP-Link_CFEA";
 const char* password = "18248760";
 
 // MQTT Server
-const char* mqtt_server = "192.168.0.100";  // Địa chỉ IP của máy nhận MQTT
+const char* mqtt_server = "192.168.0.101";  // Địa chỉ IP của máy nhận MQTT
 const int mqtt_port = 1884;
 const char* mqtt_user = "quan";           // Tên người dùng
 const char* mqtt_password = "b21dccn606";  // Mật khẩu
 const char* mqtt_sensor_topic = "home/sensor/data";  // Topic để gửi dữ liệu cảm biến
 const char* mqtt_control_topic = "home/device/control";  // Topic để nhận lệnh điều khiển
 const char* mqtt_status_topic = "home/device/status";  // Topic để gửi trạng thái thiết bị
-
-// Biến lưu trạng thái hiện tại của các thiết bị
-bool currentFanState = LOW;
-bool currentACState = LOW;
-bool currentLightState = LOW;
 
 WiFiClient espClient;
 PubSubClient client(espClient);
@@ -87,34 +83,36 @@ void callback(char* topic, byte* payload, unsigned int length) {
 
 // Kiểm tra thiết bị và trạng thái để điều khiển tương ứng
 if (String(device) == "fan") {
-    if (String(status) == "on" && currentFanState == LOW) {
+    if (String(status) == "on") {
       digitalWrite(FAN_PIN, HIGH); // Bật quạt
-      currentFanState = HIGH;      // Cập nhật trạng thái
       client.publish(mqtt_status_topic, "{\"device\": \"fan\", \"status\": \"on\"}"); // Chỉ gửi lệnh nếu có sự thay đổi
-    } else if (String(status) == "off" && currentFanState == HIGH) {
+    } else if (String(status) == "off") {
       digitalWrite(FAN_PIN, LOW);  // Tắt quạt
-      currentFanState = LOW;       // Cập nhật trạng thái
       client.publish(mqtt_status_topic, "{\"device\": \"fan\", \"status\": \"off\"}");
     }
 } else if (String(device) == "ac") {
-    if (String(status) == "on" && currentACState == LOW) {
+    if (String(status) == "on") {
       digitalWrite(AC_PIN, HIGH);  // Bật máy lạnh
-      currentACState = HIGH;       // Cập nhật trạng thái
       client.publish(mqtt_status_topic, "{\"device\": \"ac\", \"status\": \"on\"}");
-    } else if (String(status) == "off" && currentACState == HIGH) {
+    } else if (String(status) == "off") {
       digitalWrite(AC_PIN, LOW);   // Tắt máy lạnh
-      currentACState = LOW;        // Cập nhật trạng thái
       client.publish(mqtt_status_topic, "{\"device\": \"ac\", \"status\": \"off\"}");
     }
 } else if (String(device) == "light") {
-    if (String(status) == "on" && currentLightState == LOW) {
+    if (String(status) == "on") {
       digitalWrite(LIGHT_PIN, HIGH); // Bật đèn
-      currentLightState = HIGH;      // Cập nhật trạng thái
       client.publish(mqtt_status_topic, "{\"device\": \"light\", \"status\": \"on\"}");
-    } else if (String(status) == "off" && currentLightState == HIGH) {
+    } else if (String(status) == "off") {
       digitalWrite(LIGHT_PIN, LOW);  // Tắt đèn
-      currentLightState = LOW;       // Cập nhật trạng thái
       client.publish(mqtt_status_topic, "{\"device\": \"light\", \"status\": \"off\"}");
+    }
+} else if (String(device) == "alert") {
+    if (String(status) == "on") {
+      digitalWrite(ALERT_PIN, HIGH); // Bật đèn
+      client.publish(mqtt_status_topic, "{\"device\": \"alert\", \"status\": \"on\"}");
+    } else if (String(status) == "off") {
+      digitalWrite(ALERT_PIN, LOW);  // Tắt đèn
+      client.publish(mqtt_status_topic, "{\"device\": \"alert\", \"status\": \"off\"}");
     }
 }
 }
@@ -128,6 +126,7 @@ void setup() {
   pinMode(FAN_PIN, OUTPUT);
   pinMode(AC_PIN, OUTPUT);
   pinMode(LIGHT_PIN, OUTPUT);
+  pinMode(ALERT_PIN, OUTPUT);
   
   // Kết nối WiFi
   WiFi.begin(ssid, password);
@@ -165,22 +164,27 @@ void loop() {
   }
   float light = lux;
 
+// Tạo giá trị ngẫu nhiên cho dust (0-100)
+  int dust = random(0, 101);  // Hàm random() tạo số trong khoảng [0, 100]
+
   // Chuẩn bị dữ liệu dưới dạng JSON
   String jsonData = "{\"temperature\": " + String(temperature) + 
                     ", \"humidity\": " + String(humidity) + 
-                    ", \"light\": " + String(light) + "}";
+                    ", \"light\": " + String(light) + 
+                    ", \"dust\": " + String(dust) + "}";
 
   // Gửi dữ liệu cảm biến qua MQTT
   client.publish(mqtt_sensor_topic, jsonData.c_str());
 
-  // In ra Serial Monitor để kiểm tra
   Serial.print("Độ ẩm: ");
   Serial.print(humidity);
   Serial.print("%, Nhiệt độ: ");
   Serial.print(temperature);
   Serial.print("°C, Ánh sáng: ");
   Serial.print(light);
-  Serial.println(" lux");
+  Serial.print(" lux, Bụi: ");
+  Serial.print(dust);
+  Serial.println(" pm");
 
   for(int i = 0 ; i < 10 ; i ++){
     delay(500);

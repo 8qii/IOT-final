@@ -170,53 +170,6 @@ def add_notification_route():
 
 # ------------------------------------Thong Ke-------------------------------------------
 
-# @app.route('/api/sensors/all', methods=['GET'])
-# def get_all_sensors_data():
-#     conn = sqlite3.connect(r'G:/Coding/database/iot.db')
-#     cursor = conn.cursor()
-
-#     cursor.execute(
-#         "SELECT id, temperature, humidity, light, time FROM sensors ORDER BY id ASC")
-#     rows = cursor.fetchall()
-
-#     data = []
-#     for row in rows:
-#         data.append({
-#             'id': row[0],
-#             'nhiet_do': row[1],
-#             'do_am': row[2],
-#             'do_sang': row[3],
-#             'time': row[4]  # Đảm bảo rằng thời gian được trả về đúng định dạng
-#         })
-
-#     conn.close()
-#     return jsonify(data)
-
-
-# ----------------------------------------Lich Su-----------------------------------------
-# @app.route('/api/devices', methods=['GET'])
-# def get_devices_data():
-#     conn = sqlite3.connect('G:/Coding/database/iot.db')
-#     cursor = conn.cursor()
-
-#     cursor.execute(
-#         "SELECT id, device_name, status, time FROM devices ORDER BY id DESC")
-#     rows = cursor.fetchall()
-
-#     data = []
-#     for row in rows:
-#         data.append({
-#             'id': row[0],
-#             'device_name': row[1],
-#             'status': row[2],
-#             'time': row[3]
-#         })
-
-#     conn.close()
-#     return jsonify(data)
-
-
-
 
 def get_alert_on_count():
     # Connect to the SQLite database
@@ -323,6 +276,8 @@ def get_sensors_data_filter():
     # Nhận các tham số từ query string
     filter_param = request.args.get('filter', 'all')
     search_query = request.args.get('search', '')
+    page = int(request.args.get('page', 1))  # Trang hiện tại
+    rows_per_page = int(request.args.get('rowsPerPage', 10))  # Số dòng mỗi trang
 
     # Kết nối tới cơ sở dữ liệu
     conn = sqlite3.connect('G:/Coding/database/iot.db')
@@ -365,10 +320,36 @@ def get_sensors_data_filter():
         query += " AND time LIKE ?"
         params.append(f'%{search_query}%')
 
-    # Sắp xếp theo thời gian mới nhất trước
-    query += " ORDER BY time DESC"
+    # Thực hiện truy vấn để lấy tổng số bản ghi
+    count_query = "SELECT COUNT(*) FROM sensors WHERE 1=1"
+    if filter_param == 'today':
+        count_query += " AND time BETWEEN ? AND ?"
+        count_params = [start_date, end_date]
+    elif filter_param == '7days':
+        count_query += " AND time >= ?"
+        count_params = [start_date]
+    elif filter_param == '1month':
+        count_query += " AND time >= ?"
+        count_params = [start_date]
+    elif filter_param == '3months':
+        count_query += " AND time >= ?"
+        count_params = [start_date]
+    else:
+        count_params = []
 
-    # Thực hiện truy vấn
+    if search_query:
+        count_query += " AND time LIKE ?"
+        count_params.append(f'%{search_query}%')
+
+    cursor.execute(count_query, count_params)
+    total_records = cursor.fetchone()[0]  # Tổng số bản ghi
+
+    # Tính toán giới hạn cho phân trang
+    offset = (page - 1) * rows_per_page
+    query += " ORDER BY time DESC LIMIT ? OFFSET ?"
+    params.extend([rows_per_page, offset])
+
+    # Thực hiện truy vấn để lấy dữ liệu phân trang
     cursor.execute(query, params)
     rows = cursor.fetchall()
 
@@ -388,12 +369,15 @@ def get_sensors_data_filter():
     conn.close()
 
     # Trả về dữ liệu dưới dạng JSON
-    return jsonify(data)
+    return jsonify({
+        'data': data,
+        'total': total_records  # Trả về tổng số bản ghi
+    })
 
 
 # -------------------------MQTT---------------------------------------------
 # Cấu hình MQTT
-mqtt_broker = "192.168.0.100"  # Địa chỉ IP của máy nhận MQTT
+mqtt_broker = "192.168.0.101"  # Địa chỉ IP của máy nhận MQTT
 mqtt_port = 1884
 mqtt_topic = "home/sensor/data"
 mqtt_topic_control = "home/device/control"  # Chủ đề điều khiển thiết bị
@@ -431,11 +415,6 @@ def on_message(client, userdata, message):
             conn.commit()
             print("Dữ liệu cảm biến đã được lưu vào cơ sở dữ liệu.")
 
-            # # Xóa dòng mới nhất
-            # cursor.execute("""
-            #     DELETE FROM sensors 
-            #     WHERE rowid = (SELECT MAX(rowid) FROM sensors)
-            # """)
             conn.commit()
 
             conn.close()
