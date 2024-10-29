@@ -372,7 +372,7 @@ function initializeChart() {
                     ]
                 },
                 options: {
-                    animation: false,
+                    animation: true,
                     scales: {
                         x: {
                             ticks: {
@@ -599,8 +599,6 @@ setInterval(() => {
 }, 2);
 
 
-         
-
 document.addEventListener("DOMContentLoaded", function () {
     fetchSensorData();
     syncDeviceStatus();
@@ -681,33 +679,6 @@ function startAutoUpdate() {
 window.onload = startAutoUpdate;
 
 
-// Hàm cập nhật giá trị bụi và kiểm tra điều kiện bật Alert
-function updateDustValue(dustValue) {
-    // Cập nhật giá trị bụi trên giao diện
-    document.getElementById("dust").innerText = dustValue + "pm";
-
-    // Kiểm tra nếu giá trị bụi vượt quá 60
-    if (dustValue > 60) {
-        // Bật công tắc Alert
-        document.getElementById("alert-switch").checked = true;
-        alertDevice(true);  // Gọi hàm để bật thiết bị Alert
-    } else {
-        // Tắt công tắc Alert
-        document.getElementById("alert-switch").checked = false;
-        alertDevice(false); // Gọi hàm để tắt thiết bị Alert
-    }
-}
-
-// Giả lập một hàm để bật/tắt thiết bị Alert (ví dụ có thể là điều khiển thiết bị qua API)
-function alertDevice(isOn) {
-    if (isOn) {
-        console.log("Thiết bị Alert đã được bật");
-        document.getElementById("alert-icon").src = "img/alertOn.gif";  // Đổi icon sang trạng thái bật
-    } else {
-        console.log("Thiết bị Alert đã được tắt");
-        document.getElementById("alert-icon").src = "img/alertOff.png";  // Đổi icon sang trạng thái tắt
-    }
-}
 
 
 // Function to fetch the alert on count from the API and update the HTML element

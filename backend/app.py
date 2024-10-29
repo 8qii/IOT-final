@@ -270,110 +270,95 @@ def get_devices_data_filter():
 # -----------------------------filter sensor data------------------------------
 # Đảm bảo mã API trả về dữ liệu đúng định dạng
 
-
 @app.route('/api/sensors-filter', methods=['GET'])
 def get_sensors_data_filter():
     # Nhận các tham số từ query string
     filter_param = request.args.get('filter', 'all')
+    sensor_filter = request.args.get('sensorFilter', 'all')
     search_query = request.args.get('search', '')
-    page = int(request.args.get('page', 1))  # Trang hiện tại
-    rows_per_page = int(request.args.get('rowsPerPage', 10))  # Số dòng mỗi trang
+    page = int(request.args.get('page', 1))
+    rows_per_page = int(request.args.get('rowsPerPage', 10))
+    sort_field = request.args.get('sortColumn', 'time')  # Cột mặc định 'time'
+    sort_order = request.args.get('sortDirection', 'desc')  # Hướng mặc định 'desc'
 
-    # Kết nối tới cơ sở dữ liệu
+    # Xác thực trường sắp xếp hợp lệ để tránh SQL Injection
+    valid_sort_fields = {'id', 'temperature', 'humidity', 'light', 'dust', 'time'}
+    if sort_field not in valid_sort_fields:
+        return jsonify({'error': 'Invalid sort field'}), 400
+
+    # Kết nối cơ sở dữ liệu
     conn = sqlite3.connect('G:/Coding/database/iot.db')
     cursor = conn.cursor()
 
     # Lấy thời gian hiện tại
     now = datetime.now()
 
-    # Xây dựng câu truy vấn SQL và giá trị bộ lọc
+    # Khởi tạo câu truy vấn và tham số
     query = "SELECT id, temperature, humidity, light, dust, time FROM sensors WHERE 1=1"
     params = []
 
+    # Xử lý các bộ lọc thời gian
     if filter_param == 'today':
-        # Lọc dữ liệu của ngày hôm nay
         start_date = now.strftime('%Y-%m-%d 00:00:00')
         end_date = now.strftime('%Y-%m-%d 23:59:59')
         query += " AND time BETWEEN ? AND ?"
         params.extend([start_date, end_date])
 
     elif filter_param == '7days':
-        # Lọc dữ liệu trong 7 ngày qua
         start_date = (now - timedelta(days=7)).strftime('%Y-%m-%d %H:%M:%S')
         query += " AND time >= ?"
         params.append(start_date)
 
     elif filter_param == '1month':
-        # Lọc dữ liệu trong 1 tháng qua
         start_date = (now - timedelta(days=30)).strftime('%Y-%m-%d %H:%M:%S')
         query += " AND time >= ?"
         params.append(start_date)
 
     elif filter_param == '3months':
-        # Lọc dữ liệu trong 3 tháng qua
         start_date = (now - timedelta(days=90)).strftime('%Y-%m-%d %H:%M:%S')
         query += " AND time >= ?"
         params.append(start_date)
 
-    if search_query:
-        # Tìm kiếm theo chuỗi thời gian
-        query += " AND time LIKE ?"
+    # Xử lý tìm kiếm theo cảm biến hoặc giá trị cụ thể
+    if sensor_filter != 'all' and search_query:
+        query += f" AND {sensor_filter} LIKE ?"
         params.append(f'%{search_query}%')
+    elif search_query:
+        query += " AND (id LIKE ? OR time LIKE ?)"
+        params.extend([f'%{search_query}%', f'%{search_query}%'])
 
-    # Thực hiện truy vấn để lấy tổng số bản ghi
-    count_query = "SELECT COUNT(*) FROM sensors WHERE 1=1"
-    if filter_param == 'today':
-        count_query += " AND time BETWEEN ? AND ?"
-        count_params = [start_date, end_date]
-    elif filter_param == '7days':
-        count_query += " AND time >= ?"
-        count_params = [start_date]
-    elif filter_param == '1month':
-        count_query += " AND time >= ?"
-        count_params = [start_date]
-    elif filter_param == '3months':
-        count_query += " AND time >= ?"
-        count_params = [start_date]
-    else:
-        count_params = []
+    # Truy vấn tổng số bản ghi cho phân trang
+    count_query = f"SELECT COUNT(*) FROM ({query})"
+    cursor.execute(count_query, params)
+    total_records = cursor.fetchone()[0]
 
-    if search_query:
-        count_query += " AND time LIKE ?"
-        count_params.append(f'%{search_query}%')
-
-    cursor.execute(count_query, count_params)
-    total_records = cursor.fetchone()[0]  # Tổng số bản ghi
-
-    # Tính toán giới hạn cho phân trang
+    # Tính toán giới hạn và bù trừ (offset) cho phân trang
     offset = (page - 1) * rows_per_page
-    query += " ORDER BY time DESC LIMIT ? OFFSET ?"
+    query += f" ORDER BY {sort_field} {sort_order} LIMIT ? OFFSET ?"
     params.extend([rows_per_page, offset])
 
-    # Thực hiện truy vấn để lấy dữ liệu phân trang
+    # Thực hiện truy vấn và lấy dữ liệu
     cursor.execute(query, params)
     rows = cursor.fetchall()
 
-    # Định dạng dữ liệu kết quả thành danh sách các dictionary
-    data = []
-    for row in rows:
-        data.append({
+    # Chuyển đổi dữ liệu thành danh sách dictionary
+    data = [
+        {
             'id': row[0],
             'temperature': row[1],
             'humidity': row[2],
             'light': row[3],
             'dust': row[4],
             'time': row[5]
-        })
+        }
+        for row in rows
+    ]
 
     # Đóng kết nối cơ sở dữ liệu
     conn.close()
 
-    # Trả về dữ liệu dưới dạng JSON
-    return jsonify({
-        'data': data,
-        'total': total_records  # Trả về tổng số bản ghi
-    })
-
+    # Trả về kết quả JSON
+    return jsonify({'data': data, 'total': total_records})
 
 # -------------------------MQTT---------------------------------------------
 # Cấu hình MQTT
@@ -474,7 +459,7 @@ def on_connect(client, userdata, flags, rc):
             subscribed_topics.add(mqtt_topic_status)
     else:
         print(f"Kết nối thất bại với mã lỗi: {rc}")
-mqtt_client.on_connect = on_connect
+# mqtt_client.on_connect = on_connect
 
 # ---------------------- Flask API cho điều khiển thiết bị ----------------------
 

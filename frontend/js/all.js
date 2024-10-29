@@ -47,7 +47,7 @@ document.addEventListener('DOMContentLoaded', function () {
     fetchNotifications();
 
     // Lấy dữ liệu thông báo theo định kỳ
-    setInterval(fetchNotifications, 10000); // Cập nhật mỗi 10 giây
+    setInterval(fetchNotifications, 5000); // Cập nhật mỗi 10 giây
 
     // Các đoạn mã khác không thay đổi
     function toggleNotifications() {
