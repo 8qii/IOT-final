@@ -324,8 +324,8 @@ def get_sensors_data_filter():
         query += f" AND {sensor_filter} LIKE ?"
         params.append(f'%{search_query}%')
     elif search_query:
-        query += " AND (id LIKE ? OR time LIKE ?)"
-        params.extend([f'%{search_query}%', f'%{search_query}%'])
+        query += f" AND time LIKE ?"
+        params.append(f'%{search_query}%')
 
     # Truy vấn tổng số bản ghi cho phân trang
     count_query = f"SELECT COUNT(*) FROM ({query})"
@@ -362,7 +362,7 @@ def get_sensors_data_filter():
 
 # -------------------------MQTT---------------------------------------------
 # Cấu hình MQTT
-mqtt_broker = "192.168.0.101"  # Địa chỉ IP của máy nhận MQTT
+mqtt_broker = "172.20.10.2"  # Địa chỉ IP của máy nhận MQTT
 mqtt_port = 1884
 mqtt_topic = "home/sensor/data"
 mqtt_topic_control = "home/device/control"  # Chủ đề điều khiển thiết bị
@@ -459,7 +459,7 @@ def on_connect(client, userdata, flags, rc):
             subscribed_topics.add(mqtt_topic_status)
     else:
         print(f"Kết nối thất bại với mã lỗi: {rc}")
-# mqtt_client.on_connect = on_connect
+mqtt_client.on_connect = on_connect
 
 # ---------------------- Flask API cho điều khiển thiết bị ----------------------
 

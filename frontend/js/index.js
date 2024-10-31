@@ -705,4 +705,4 @@ setInterval(fetchAlertCount, 1000);
 setInterval(() => {
     // Hàm này nên được gọi sau khi cập nhật giá trị nhiệt độ, độ ẩm, và độ sáng
     syncDeviceStatus();
-}, 1030);              
+}, 50);              

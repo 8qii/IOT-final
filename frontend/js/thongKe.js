@@ -3,12 +3,12 @@ document.addEventListener('DOMContentLoaded', function () {
     let currentPage = 1; 
     let totalRecords = 0; 
     let sortColumn = 'id'; // Cột mặc định
-    let sortDirection = 'asc'; // Hướng mặc định
+    let sortDirection = 'desc'; // Hướng mặc định
 
     async function fetchData() {
         const filter = document.getElementById('filterSelect').value;
         const sensorFilter = document.getElementById('sensorFilterSelect').value;
-        const searchQuery = document.getElementById('searchInput').value;
+        const searchQuery = document.getElementById('searchInput').value.trim();
 
         try {
             // Gửi yêu cầu API với các tham số lọc, phân trang và sắp xếp

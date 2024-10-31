@@ -14,12 +14,16 @@ DHT dht(dhtpin, dhttype);
 #define LIGHT_PIN 2   // LED đại diện cho đèn
 #define ALERT_PIN 13
 
+bool alertState = false;
+unsigned long previousMillis = 0;  // Lưu thời điểm lần nhấp nháy cuối
+const long interval = 500; 
+
 // Thông tin mạng WiFi
-const char* ssid = "TP-Link_CFEA";
-const char* password = "18248760";
+const char* ssid = "Hqii";
+const char* password = "0123456789";
 
 // MQTT Server
-const char* mqtt_server = "192.168.0.101";  // Địa chỉ IP của máy nhận MQTT
+const char* mqtt_server = "172.20.10.2";  // Địa chỉ IP của máy nhận MQTT
 const int mqtt_port = 1884;
 const char* mqtt_user = "quan";           // Tên người dùng
 const char* mqtt_password = "b21dccn606";  // Mật khẩu
@@ -108,13 +112,14 @@ if (String(device) == "fan") {
     }
 } else if (String(device) == "alert") {
     if (String(status) == "on") {
-      digitalWrite(ALERT_PIN, HIGH); // Bật đèn
+      alertState = true;  // Bắt đầu nhấp nháy
       client.publish(mqtt_status_topic, "{\"device\": \"alert\", \"status\": \"on\"}");
     } else if (String(status) == "off") {
-      digitalWrite(ALERT_PIN, LOW);  // Tắt đèn
+      alertState = false;  // Dừng nhấp nháy
+      digitalWrite(ALERT_PIN, LOW);  // Tắt đèn ngay lập tức
       client.publish(mqtt_status_topic, "{\"device\": \"alert\", \"status\": \"off\"}");
     }
-}
+  }
 }
 
 
@@ -153,6 +158,9 @@ void setup() {
 void loop() {
   client.loop();  // Lắng nghe lệnh từ MQTT
 
+  unsigned long currentMillis = millis();
+  
+
   // Đọc dữ liệu cảm biến DHT11 và LDR
   float humidity = dht.readHumidity();
   float temperature = dht.readTemperature();
@@ -186,8 +194,13 @@ void loop() {
   Serial.print(dust);
   Serial.println(" pm");
 
-  for(int i = 0 ; i < 10 ; i ++){
-    delay(500);
+  for(int i = 0 ; i < 50 ; i ++){
+    delay(100);
+    if (alertState && currentMillis - previousMillis >= interval) {
+      previousMillis = currentMillis;  // Cập nhật thời gian
+      int state = digitalRead(ALERT_PIN);  // Đọc trạng thái hiện tại
+      digitalWrite(ALERT_PIN, !state);  // Đổi trạng thái (bật/tắt)
+    }
     client.loop();
   }
 }
